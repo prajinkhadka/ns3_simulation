@@ -7,6 +7,7 @@
 #include "ns3/point-to-point-layout-module.h"
 #include "ns3/flow-monitor-helper.h"
 #include "ns3/flow-monitor-module.h"
+#include "ns3/tcp-dctcp.h"
 
 using namespace ns3;
 
@@ -41,6 +42,9 @@ int main (int argc, char *argv[])
 
     // Default number of nodes in the star.  Overridable by command line argument.
     uint32_t nSpokes = 8;
+
+    // set TCP protocol
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpDctcp"));
 
     CommandLine cmd;
     cmd.AddValue ("nSpokes", "Number of nodes to place in the star", nSpokes);
@@ -101,7 +105,7 @@ int main (int argc, char *argv[])
     pointToPoint.EnablePcapAll ("star");
     //For ascii trace
     AsciiTraceHelper ascii;
-    pointToPoint.EnableAsciiAll(ascii.CreateFileStream("slide_1_scenario_2_tcp.tr"));
+    pointToPoint.EnableAsciiAll(ascii.CreateFileStream("slide_1_scenario_2_tcp_dctcp.tr"));
 
     NS_LOG_INFO ("Run Simulation.");
 

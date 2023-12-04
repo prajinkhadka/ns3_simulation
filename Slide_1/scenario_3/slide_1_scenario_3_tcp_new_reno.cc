@@ -12,6 +12,25 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("Star");
 
+void SetInterfacesDown(PointToPointStarHelper& star) {
+    for (uint32_t i = 0; i < 3; ++i){
+        Ptr<Node> node = star.GetSpokeNode(i);
+        Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
+        uint32_t ifIndex = 1; // Assuming the first point-to-point interface, adjust if needed
+        ipv4->SetDown(ifIndex);
+    }
+}
+
+void SetInterfacesUp(PointToPointStarHelper& star) {
+    for (uint32_t i = 0; i < 3; ++i) {
+        Ptr<Node> node = star.GetSpokeNode(i);
+        Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
+        uint32_t ifIndex = 1; // Assuming the first point-to-point interface, adjust if needed
+        ipv4->SetUp(ifIndex);
+    }
+}
+
+
 int main (int argc, char *argv[])
 {
     // Set up some default values for the simulation.
@@ -22,6 +41,9 @@ int main (int argc, char *argv[])
 
     // Default number of nodes in the star.  Overridable by command line argument.
     uint32_t nSpokes = 8;
+
+    // set TCP protocol
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpNewReno"));
 
     CommandLine cmd;
     cmd.AddValue ("nSpokes", "Number of nodes to place in the star", nSpokes);
@@ -82,9 +104,12 @@ int main (int argc, char *argv[])
     pointToPoint.EnablePcapAll ("star");
     //For ascii trace
     AsciiTraceHelper ascii;
-    pointToPoint.EnableAsciiAll(ascii.CreateFileStream("slide_1_scenario_1_tcp.tr"));
+    pointToPoint.EnableAsciiAll(ascii.CreateFileStream("slide_1_scenario_2_tcp_new_reno.tr"));
 
     NS_LOG_INFO ("Run Simulation.");
+
+    Simulator::Schedule (Seconds (2), SetInterfacesDown, star);
+    Simulator::Schedule (Seconds (4), SetInterfacesUp, star);
 
     Simulator::Run ();
     Simulator::Destroy ();
@@ -92,4 +117,3 @@ int main (int argc, char *argv[])
 
     return 0;
 }
-
