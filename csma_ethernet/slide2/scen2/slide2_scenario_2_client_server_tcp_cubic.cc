@@ -13,18 +13,20 @@ NS_LOG_COMPONENT_DEFINE("CsmaExample");
 int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
-    // These can also be changed if needed to create congestion in the network.
-    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137));
-    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s"));
+    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(1400));
+    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("2Mbps"));
 
-    uint32_t nClients = 30; // Number of client nodes, Change this value based on baseline i.e Increase by +20 or +30 ( figure out with experiamtnation )
-    double channelDataRate = 2.5; // Total shared channel data rate in Mbps , Changed to /4 from 10. Change this as needed to make sire thenetwork is congested.
+    uint32_t nClients = 50; // Number of client nodes
+    double channelDataRate = 2.0; // Total shared channel data rate in Mbps
 
     CommandLine cmd;
     cmd.AddValue("nClients", "Number of client nodes", nClients);
     cmd.AddValue("channelDataRate", "Total shared channel data rate (Mbps)", channelDataRate);
     cmd.Parse(argc, argv);
 
+    // set TCP protocol
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpCubic"));
+    
     NS_LOG_INFO("Create nodes.");
     NodeContainer csmaNodes;
     csmaNodes.Create(nClients + 1); // +1 for the server
@@ -38,7 +40,7 @@ int main(int argc, char *argv[])
     NetDeviceContainer csmaDevices;
     csmaDevices = csma.Install(csmaNodes);
     AsciiTraceHelper ascii;
-    csma.EnableAsciiAll(ascii.CreateFileStream("test/csma-trace_prajin.tr"));
+    csma.EnableAsciiAll(ascii.CreateFileStream("Slide2_scen2_TcpCubic.tr"));
 
     csma.EnablePcapAll("csma-example-prajin");
 
@@ -69,13 +71,27 @@ int main(int argc, char *argv[])
     ApplicationContainer clientApps;
 
 for (uint32_t i = 0; i < nClients; ++i)
-    {
+{
     ApplicationContainer onOffApp = onOffHelper.Install(csmaNodes.Get(i));
+    std::set<uint32_t> selectedIndices = {0,1,2,3,4,5,6,7,8,9};
     clientApps.Add(onOffApp);
-    onOffApp.Start(Seconds(1.0));
-    onOffApp.Stop(Seconds(10.0));
 
+    if (selectedIndices.find(i) != selectedIndices.end()) {
+	    onOffApp.Start(Seconds(1.0));
+	    onOffApp.Stop(Seconds(2.0));
+	    std::cout << "Condition is satisfied for i = " << i << std::endl;
+   }
+
+    std::set<uint32_t> selectedIndices_1 = {20,21,22,23,24,25,26,27,28,29};
+    if (selectedIndices_1.find(i) != selectedIndices_1.end()) {
+	    onOffApp.Start(Seconds(4.0));
+	    onOffApp.Stop(Seconds(10.0));
+	    std::cout << "Condition is satisfied for i = " << i << std::endl;
     }
+    else{
+	onOffApp.Stop(Seconds(10.0));
+    }
+}
 
     NS_LOG_INFO("Run Simulation.");
     Simulator::Run();
@@ -85,4 +101,3 @@ for (uint32_t i = 0; i < nClients; ++i)
 
     return 0;
 }
-

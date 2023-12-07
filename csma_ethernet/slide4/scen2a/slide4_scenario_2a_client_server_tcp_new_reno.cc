@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
     // These can also be changed if needed to create congestion in the network.
-    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137));
-    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s"));
+    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(1400));
+    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("2Mbps"));
 
     uint32_t nClients = 30; // Number of client nodes, Change this value based on baseline i.e Increase by +20 or +30 ( figure out with experiamtnation )
-    double channelDataRate = 5.0; // Total shared channel data rate in Mbps , Changed to half from 10
+    double channelDataRate = 1.0; // Total shared channel data rate in Mbps , Changed to half from 10
 
     CommandLine cmd;
     cmd.AddValue("nClients", "Number of client nodes", nClients);
@@ -34,11 +34,13 @@ int main(int argc, char *argv[])
     csma.SetChannelAttribute("DataRate", DataRateValue(DataRate(channelDataRate * 1e6))); // Convert to bps
     csma.SetChannelAttribute("Delay", TimeValue(NanoSeconds(6560)));
 
+    // set TCP protocol
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpNewReno"));
 
     NetDeviceContainer csmaDevices;
     csmaDevices = csma.Install(csmaNodes);
     AsciiTraceHelper ascii;
-    csma.EnableAsciiAll(ascii.CreateFileStream("test/csma-trace_prajin.tr"));
+    csma.EnableAsciiAll(ascii.CreateFileStream("Slide4_scen2a_TcpNewReno.tr"));
 
     csma.EnablePcapAll("csma-example-prajin");
 

@@ -13,11 +13,12 @@ NS_LOG_COMPONENT_DEFINE("CsmaExample");
 int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
-    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137));
-    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s"));
+    // These can also be changed if needed to create congestion in the network.
+    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(1400));
+    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("2Mbps"));
 
-    uint32_t nClients = 50; // Number of client nodes
-    double channelDataRate = 10.0; // Total shared channel data rate in Mbps
+    uint32_t nClients = 30; // Number of client nodes, Change this value based on baseline i.e Increase by +20 or +30 ( figure out with experiamtnation )
+    double channelDataRate = 1.0; // Total shared channel data rate in Mbps , Changed to half from 10
 
     CommandLine cmd;
     cmd.AddValue("nClients", "Number of client nodes", nClients);
@@ -33,11 +34,13 @@ int main(int argc, char *argv[])
     csma.SetChannelAttribute("DataRate", DataRateValue(DataRate(channelDataRate * 1e6))); // Convert to bps
     csma.SetChannelAttribute("Delay", TimeValue(NanoSeconds(6560)));
 
+    // set TCP protocol
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpCubic"));
 
     NetDeviceContainer csmaDevices;
     csmaDevices = csma.Install(csmaNodes);
     AsciiTraceHelper ascii;
-    csma.EnableAsciiAll(ascii.CreateFileStream("test/csma-trace_prajin.tr"));
+    csma.EnableAsciiAll(ascii.CreateFileStream("Slide4_scen2a_TcpCubic.tr"));
 
     csma.EnablePcapAll("csma-example-prajin");
 
@@ -68,27 +71,13 @@ int main(int argc, char *argv[])
     ApplicationContainer clientApps;
 
 for (uint32_t i = 0; i < nClients; ++i)
-{
+    {
     ApplicationContainer onOffApp = onOffHelper.Install(csmaNodes.Get(i));
     clientApps.Add(onOffApp);
+    onOffApp.Start(Seconds(1.0));
+    onOffApp.Stop(Seconds(10.0)); 
 
-    std::set<uint32_t> selectedIndices = {0,1,2,3,4,5,6,7,8,9};
-    if (selectedIndices.find(i) != selectedIndices.end()) {
-            onOffApp.Start(Seconds(1.0));
-            onOffApp.Stop(Seconds(2.0));
-            std::cout << "Condition is satisfied for i = " << i << std::endl;
-   }
-
-    std::set<uint32_t> selectedIndices_1 = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,21,22,23,24,25,26,27,28,29};
-    if (selectedIndices_1.find(i) != selectedIndices_1.end()) {
-            onOffApp.Start(Seconds(4.0));
-            onOffApp.Stop(Seconds(10.0));
-            std::cout << "Condition is satisfied for i = " << i << std::endl;
     }
-    else{
-        onOffApp.Stop(Seconds(10.0));
-    }
-}
 
     NS_LOG_INFO("Run Simulation.");
     Simulator::Run();
@@ -98,4 +87,3 @@ for (uint32_t i = 0; i < nClients; ++i)
 
     return 0;
 }
-
