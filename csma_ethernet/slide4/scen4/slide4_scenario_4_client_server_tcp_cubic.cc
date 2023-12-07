@@ -14,12 +14,11 @@ int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
     // These can also be changed if needed to create congestion in the network.
-    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137)); // Keep like scenario 2.a
-    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s")); // Keep like scenario 2.a
+    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(1400));
+    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("2Mbps"));
 
-    uint32_t nClients = 30; // Keep like scenarion 2.a
-    double channelDataRate = 2.5; // Data rate is halaved as comapred to scenario 2.a so that we can see how much decrease in throughput/other metrics in multiple tcp varaint when data rate is havled. Does through put also halves ? or by how much it decreases ? 
-
+    uint32_t nClients = 60; // These are the base values.
+    double channelDataRate = 2; //These are the base values.
     CommandLine cmd;
     cmd.AddValue("nClients", "Number of client nodes", nClients);
     cmd.AddValue("channelDataRate", "Total shared channel data rate (Mbps)", channelDataRate);
@@ -34,11 +33,13 @@ int main(int argc, char *argv[])
     csma.SetChannelAttribute("DataRate", DataRateValue(DataRate(channelDataRate * 1e6))); // Convert to bps
     csma.SetChannelAttribute("Delay", TimeValue(NanoSeconds(6560)));
 
+    // set TCP protocol
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::TcpCubic"));
 
     NetDeviceContainer csmaDevices;
     csmaDevices = csma.Install(csmaNodes);
     AsciiTraceHelper ascii;
-    csma.EnableAsciiAll(ascii.CreateFileStream("test/csma-trace_prajin.tr"));
+    csma.EnableAsciiAll(ascii.CreateFileStream("Slide4_scen4_TcpCubic.tr"));
 
     csma.EnablePcapAll("csma-example-prajin");
 
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
     PacketSinkHelper packetSinkHelper("ns3::TcpSocketFactory", serverAddress);
     ApplicationContainer serverApp = packetSinkHelper.Install(csmaNodes.Get(nClients));
     serverApp.Start(Seconds(1.0));
-    serverApp.Stop(Seconds(10.0));
+    serverApp.Stop(Seconds(100.0));
 
     // Client applications
     OnOffHelper onOffHelper("ns3::TcpSocketFactory", serverAddress);
@@ -72,8 +73,17 @@ for (uint32_t i = 0; i < nClients; ++i)
     {
     ApplicationContainer onOffApp = onOffHelper.Install(csmaNodes.Get(i));
     clientApps.Add(onOffApp);
-    onOffApp.Start(Seconds(1.0));
-    onOffApp.Stop(Seconds(10.0));
+
+    std::set<uint32_t> selectedIndices = {20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39};
+    if (selectedIndices.find(i) != selectedIndices.end()) {
+            onOffApp.Start(Seconds(20.0));
+            onOffApp.Stop(Seconds(40.0));
+            std::cout << "Condition is satisfied for i = " << i << std::endl;
+   }
+
+    else{
+        onOffApp.Stop(Seconds(100.0));
+    }
 
     }
 
