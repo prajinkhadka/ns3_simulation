@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
     // These can also be changed if needed to create congestion in the network.
+    // Lets keep is consistent as in scenarion 3 
+    // So that we can compare when congestion is added and removed dynamically vs congestion added.
     Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137));
     Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s"));
 
@@ -72,6 +74,9 @@ for (uint32_t i = 0; i < nClients; ++i)
     ApplicationContainer onOffApp = onOffHelper.Install(csmaNodes.Get(i));
     clientApps.Add(onOffApp);
 
+    // 20 nodes starts at t = 20s which should create more congestion and after 20s i.e. at t = 40. 
+    // These 20 noodes stops which measn the network should be less congested. 
+    // So how does multiple TCP variants handle these scenarion in a dynamic network condition. 
     std::set<uint32_t> selectedIndices = {20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39};
     if (selectedIndices.find(i) != selectedIndices.end()) {
             onOffApp.Start(Seconds(20.0));

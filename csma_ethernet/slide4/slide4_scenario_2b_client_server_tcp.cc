@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
     // These can also be changed if needed to create congestion in the network.
-    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137));
-    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s"));
+    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137)); // Keep like scenario 2.a
+    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s")); // Keep like scenario 2.a
 
-    uint32_t nClients = 30; // Number of client nodes, Change this value based on baseline i.e Increase by +20 or +30 ( figure out with experiamtnation )
-    double channelDataRate = 2.5; // Total shared channel data rate in Mbps , Changed to /4 from 10. Change this as needed to make sire thenetwork is congested.
+    uint32_t nClients = 30; // Keep like scenarion 2.a
+    double channelDataRate = 2.5; // Data rate is halaved as comapred to scenario 2.a so that we can see how much decrease in throughput/other metrics in multiple tcp varaint when data rate is havled. Does through put also halves ? or by how much it decreases ? 
 
     CommandLine cmd;
     cmd.AddValue("nClients", "Number of client nodes", nClients);

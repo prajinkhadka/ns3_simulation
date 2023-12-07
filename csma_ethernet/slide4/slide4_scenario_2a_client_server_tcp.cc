@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
 {
     // Set up some default values for the simulation.
     // These can also be changed if needed to create congestion in the network.
-    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137));
-    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s"));
+    Config::SetDefault("ns3::OnOffApplication::PacketSize", UintegerValue(137)); // Change this as needed to simualte congestion.
+    Config::SetDefault("ns3::OnOffApplication::DataRate", StringValue("14kb/s")); // Change this as needed to simulate congestion
 
-    uint32_t nClients = 30; // Number of client nodes, Change this value based on baseline i.e Increase by +20 or +30 ( figure out with experiamtnation )
-    double channelDataRate = 5.0; // Total shared channel data rate in Mbps , Changed to half from 10
+    uint32_t nClients = 30; // Number of client nodes, Change this value based on baseline ( Scenatio 1)  i.e Increase by +20 or +30 ( figure out with experiamtnation )
+    double channelDataRate = 5.0; // Total shared channel data rate in Mbps , Changed to half from 10 ( is baseline is 10 or just aadapt according to the baseline ) 
 
     CommandLine cmd;
     cmd.AddValue("nClients", "Number of client nodes", nClients);
