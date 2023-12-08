@@ -194,6 +194,9 @@ main (int argc, char *argv[])
   Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("test/tcp-example.cwnd");
   ns3TcpSocket->TraceConnectWithoutContext ("CongestionWindow", MakeBoundCallback (&CwndChange, stream));
 
+  AsciiTraceHelper ascii;
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("tcp-example.tr"));
+
 
   Simulator::Stop (Seconds (simulation_time));
   Simulator::Run ();

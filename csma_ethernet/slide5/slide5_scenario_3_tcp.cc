@@ -208,6 +208,9 @@ main (int argc, char *argv[])
   Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("test/tcp-example_data_rate_changed.cwnd");
   ns3TcpSocket->TraceConnectWithoutContext ("CongestionWindow", MakeBoundCallback (&CwndChange, stream));
 
+  AsciiTraceHelper ascii;
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("test/tcp-example.tr"));
+
   // Schedule to update the data rate at t=2s, For now i have used , t=2 and t=4 since total simualtion time is 10s.
   // Need to change this
 
