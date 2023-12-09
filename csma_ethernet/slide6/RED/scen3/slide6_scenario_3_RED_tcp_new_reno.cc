@@ -139,7 +139,7 @@ main (int argc, char *argv[])
 
   int simulation_time = 10; //seconds
 
-  // Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpCubic"));
+  Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpNewReno"));
   Config::SetDefault("ns3::RedQueueDisc::MaxSize", StringValue("5p"));
   Config::SetDefault("ns3::RedQueueDisc::MeanPktSize", UintegerValue(meanPktSize));
   Config::SetDefault("ns3::RedQueueDisc::Wait", BooleanValue(true));
@@ -206,11 +206,11 @@ main (int argc, char *argv[])
 
   //trace cwnd
   AsciiTraceHelper asciiTraceHelper;
-  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("test/tcp-example_RED.cwnd");
+  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("Slide6_scen3_RED_TcpNewReno_cwnd.cwnd");
   ns3TcpSocket->TraceConnectWithoutContext ("CongestionWindow", MakeBoundCallback (&CwndChange, stream));
 
   AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("test/tcp-example_RED.tr"));
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("Slide6_scen3_RED_TcpNewReno_trace.tr"));
 
 
   Simulator::Schedule(Seconds(2.0), &UpdateDataRate, devices.Get(1), DataRate("1Mbps"));

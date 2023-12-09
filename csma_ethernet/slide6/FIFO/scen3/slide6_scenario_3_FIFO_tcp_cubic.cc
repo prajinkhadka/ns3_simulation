@@ -129,19 +129,18 @@ void UpdateDataRate(Ptr<NetDevice> device, DataRate newRate)
   }
 }
 
-
 int
 main (int argc, char *argv[])
 {
   // THe bandwidth of point ot point link is setup as 2Mbps.
   std::string bandwidth = "2Mbps";
   std::string delay = "5ms";
-  std::string queuesize = "10p";
+  std::string queuesize = "5p";
   double error_rate = 0.000001;
 
   int simulation_time = 10; //seconds
 
-  // Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpCubic"));
+  Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpCubic"));
 
 
   NodeContainer n0n1;
@@ -197,7 +196,7 @@ main (int argc, char *argv[])
   Ptr<Socket> ns3TcpSocket = Socket::CreateSocket (n0n1.Get (0), TcpSocketFactory::GetTypeId ());
 
   Ptr<MyApp> app = CreateObject<MyApp> ();
-  // The data rate is senin the speed of 100Mbps. This remains constant.
+  // The data rate is senin the speed of 100Mbps
   app->Setup (ns3TcpSocket, sinkAddress, 1460, 1000000, DataRate ("100Mbps"));
   n0n1.Get (0)->AddApplication (app);
   app->SetStartTime (Seconds (1.));
@@ -205,21 +204,17 @@ main (int argc, char *argv[])
 
   //trace cwnd
   AsciiTraceHelper asciiTraceHelper;
-  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("test/tcp-example_data_rate_changed.cwnd");
+  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("Slide6_scen3_FIFO_TcpCubic_cwnd.cwnd");
   ns3TcpSocket->TraceConnectWithoutContext ("CongestionWindow", MakeBoundCallback (&CwndChange, stream));
 
-
   AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("test/tcp-example.tr"));
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("Slide6_scen3_FIFO_TcpCubic_trace.tr"));
 
-  // Schedule to update the data rate at t=2s, For now i have used , t=2 and t=4 since total simualtion time is 10s.
-  // Need to change this 
-  
   Simulator::Schedule(Seconds(2.0), &UpdateDataRate, devices.Get(1), DataRate("1Mbps"));
   Simulator::Schedule(Seconds(2.0), &UpdateDataRate, devices2.Get(1), DataRate("1Mbps"));
 
-  Simulator::Schedule(Seconds(4.0), &UpdateDataRate, devices.Get(1), DataRate("0.5Mbps"));
-  Simulator::Schedule(Seconds(4.0), &UpdateDataRate, devices2.Get(1), DataRate("0.5Mbps"));
+  Simulator::Schedule(Seconds(4.0), &UpdateDataRate, devices.Get(1), DataRate("2Mbps"));
+  Simulator::Schedule(Seconds(4.0), &UpdateDataRate, devices2.Get(1), DataRate("2Mbps"));
 
   Simulator::Stop (Seconds (simulation_time));
   Simulator::Run ();

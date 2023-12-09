@@ -122,12 +122,19 @@ main (int argc, char *argv[])
   // THe bandwidth of point ot point link is setup as 2Mbps.
   std::string bandwidth = "2Mbps";
   std::string delay = "5ms";
-  std::string queuesize = "10p";
   double error_rate = 0.000001;
+  uint32_t meanPktSize = 1460;
 
   int simulation_time = 10; //seconds
 
-  // Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpCubic"));
+  Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpNewReno"));
+  Config::SetDefault("ns3::RedQueueDisc::MaxSize", StringValue("5p"));
+  Config::SetDefault("ns3::RedQueueDisc::MeanPktSize", UintegerValue(meanPktSize));
+  Config::SetDefault("ns3::RedQueueDisc::Wait", BooleanValue(true));
+  Config::SetDefault("ns3::RedQueueDisc::Gentle", BooleanValue(true));
+  Config::SetDefault("ns3::RedQueueDisc::QW", DoubleValue(0.002));
+  Config::SetDefault("ns3::RedQueueDisc::MinTh", DoubleValue(5));
+  Config::SetDefault("ns3::RedQueueDisc::MaxTh", DoubleValue(15)); 
 
 
   NodeContainer n0n1;
@@ -137,8 +144,6 @@ main (int argc, char *argv[])
   pointToPoint.SetDeviceAttribute ("DataRate", StringValue (bandwidth));
   pointToPoint.SetChannelAttribute ("Delay", StringValue (delay));
 
-  pointToPoint.SetQueue ("ns3::DropTailQueue",
-              "MaxSize", StringValue (queuesize));
 
   NetDeviceContainer devices;
   devices = pointToPoint.Install (n0n1);
@@ -151,8 +156,6 @@ main (int argc, char *argv[])
   pointToPoint2.SetDeviceAttribute ("DataRate", StringValue (bandwidth));
   pointToPoint2.SetChannelAttribute ("Delay", StringValue (delay));
 
-  pointToPoint2.SetQueue ("ns3::DropTailQueue",
-             "MaxSize", StringValue (queuesize));
 
   NetDeviceContainer devices2;
   devices2= pointToPoint2.Install (n1n2);
@@ -191,11 +194,11 @@ main (int argc, char *argv[])
 
   //trace cwnd
   AsciiTraceHelper asciiTraceHelper;
-  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("test/tcp-example.cwnd");
+  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("Slide6_scen1_RED_TcpNewReno_cwnd.cwnd");
   ns3TcpSocket->TraceConnectWithoutContext ("CongestionWindow", MakeBoundCallback (&CwndChange, stream));
 
   AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("tcp-example.tr"));
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("Slide6_scen1_RED_TcpNewReno_trace.tr"));
 
 
   Simulator::Stop (Seconds (simulation_time));

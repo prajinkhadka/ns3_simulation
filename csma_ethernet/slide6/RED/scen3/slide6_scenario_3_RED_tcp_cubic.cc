@@ -116,6 +116,18 @@ CwndChange (Ptr<OutputStreamWrapper> stream, uint32_t oldCwnd, uint32_t newCwnd)
   *stream->GetStream () << Simulator::Now ().GetSeconds () << "\t" << oldCwnd << "\t" << newCwnd << std::endl;
 }
 
+void UpdateDataRate(Ptr<NetDevice> device, DataRate newRate)
+{
+  Ptr<PointToPointNetDevice> p2pDevice = DynamicCast<PointToPointNetDevice>(device);
+  if (p2pDevice)
+  {
+    p2pDevice->SetDataRate(newRate);
+  }
+  else
+  {
+    NS_LOG_ERROR("Invalid NetDevice type for UpdateDataRate");
+  }
+}
 int
 main (int argc, char *argv[])
 {
@@ -127,14 +139,14 @@ main (int argc, char *argv[])
 
   int simulation_time = 10; //seconds
 
-  // Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpCubic"));
+  Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue ("ns3::TcpCubic"));
   Config::SetDefault("ns3::RedQueueDisc::MaxSize", StringValue("5p"));
   Config::SetDefault("ns3::RedQueueDisc::MeanPktSize", UintegerValue(meanPktSize));
   Config::SetDefault("ns3::RedQueueDisc::Wait", BooleanValue(true));
   Config::SetDefault("ns3::RedQueueDisc::Gentle", BooleanValue(true));
   Config::SetDefault("ns3::RedQueueDisc::QW", DoubleValue(0.002));
   Config::SetDefault("ns3::RedQueueDisc::MinTh", DoubleValue(5));
-  Config::SetDefault("ns3::RedQueueDisc::MaxTh", DoubleValue(15)); 
+  Config::SetDefault("ns3::RedQueueDisc::MaxTh", DoubleValue(15));
 
 
   NodeContainer n0n1;
@@ -194,12 +206,18 @@ main (int argc, char *argv[])
 
   //trace cwnd
   AsciiTraceHelper asciiTraceHelper;
-  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("test/tcp-example_RED.cwnd");
+  Ptr<OutputStreamWrapper> stream = asciiTraceHelper.CreateFileStream ("Slide6_scen3_RED_TcpCubic_cwnd.cwnd");
   ns3TcpSocket->TraceConnectWithoutContext ("CongestionWindow", MakeBoundCallback (&CwndChange, stream));
 
   AsciiTraceHelper ascii;
-  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("test/tcp-example_RED.tr"));
+  pointToPoint.EnableAsciiAll (ascii.CreateFileStream ("Slide6_scen3_RED_TcpCubic_trace.tr"));
 
+
+  Simulator::Schedule(Seconds(2.0), &UpdateDataRate, devices.Get(1), DataRate("1Mbps"));
+  Simulator::Schedule(Seconds(2.0), &UpdateDataRate, devices2.Get(1), DataRate("1Mbps"));
+
+  Simulator::Schedule(Seconds(4.0), &UpdateDataRate, devices.Get(1), DataRate("2Mbps"));
+  Simulator::Schedule(Seconds(4.0), &UpdateDataRate, devices2.Get(1), DataRate("2Mbps"));
 
   Simulator::Stop (Seconds (simulation_time));
   Simulator::Run ();
